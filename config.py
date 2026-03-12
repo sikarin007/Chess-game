@@ -40,3 +40,25 @@ def load_piece_images() -> dict:
             img = pygame.image.load(path).convert_alpha()
             PIECE_IMAGES[key] = pygame.transform.scale(img, size)
     return PIECE_IMAGES
+
+
+# --- ระบบเสียง (Sound Effects) ---
+pygame.mixer.init()
+
+try:
+    MOVE_SOUND = pygame.mixer.Sound("assets/sounds/sound_move/move.wav")
+    CAPTURE_SOUND = pygame.mixer.Sound("assets/sounds/capture/capture.wav")
+    CHECKMATE_SOUND = pygame.mixer.Sound("assets/sounds/sound_check_mate/check_mate.wav")
+    CASTLE_SOUND = pygame.mixer.Sound("assets/sounds/Castle_checkmate/castle_checkmate.wav")
+
+    MOVE_SOUND.set_volume(0.5)
+    CAPTURE_SOUND.set_volume(0.5)
+    CHECKMATE_SOUND.set_volume(0.7)
+    CASTLE_SOUND.set_volume(0.6)
+
+except FileNotFoundError as e:
+    print(f"Sound files not found: {e}")
+    MOVE_SOUND = None
+    CAPTURE_SOUND = None
+    CHECKMATE_SOUND = None
+    CASTLE_SOUND = None
