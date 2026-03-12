@@ -2,7 +2,7 @@ import random
 import pygame
 from config import (
     WIDTH, HEIGHT, FPS, BG_COLOR, load_piece_images, row_count, column_count,
-    CHECKMATE_SOUND,
+    CHECKMATE_SOUND, CHECK_SOUND,
 )
 from source.board import Board
 from source.systems.control import get_row_col_from_mouse
@@ -51,6 +51,8 @@ class Game:
             if (row, col) in self.valid_moves:
                 self.board.move(self.selected_piece, row, col)
                 self.turn = "black"
+                if self.board.is_in_check(self.turn) and CHECK_SOUND:
+                    CHECK_SOUND.play()
                 self.ai_timer_start = pygame.time.get_ticks()
                 self.ai_delay = random.randint(1000, 3000)
                 self.selected_piece = None
@@ -90,6 +92,8 @@ class Game:
             piece, row, col = best_move
             self.board.move(piece, row, col)
             self.turn = "white"
+            if self.board.is_in_check(self.turn) and CHECK_SOUND:
+                CHECK_SOUND.play()
             if self.board.is_checkmate(self.turn):
                 self.game_over = True
                 self.game_over_message = "Checkmate!"

@@ -50,11 +50,13 @@ try:
     CAPTURE_SOUND = pygame.mixer.Sound("assets/sounds/capture/capture.wav")
     CHECKMATE_SOUND = pygame.mixer.Sound("assets/sounds/sound_check_mate/check_mate.wav")
     CASTLE_SOUND = pygame.mixer.Sound("assets/sounds/Castle_checkmate/castle_checkmate.wav")
+    CHECK_SOUND = pygame.mixer.Sound("assets/sounds/check/move-check.wav")
 
     MOVE_SOUND.set_volume(0.5)
     CAPTURE_SOUND.set_volume(0.5)
     CHECKMATE_SOUND.set_volume(0.7)
     CASTLE_SOUND.set_volume(0.6)
+    CHECK_SOUND.set_volume(0.6)
 
 except FileNotFoundError as e:
     print(f"Sound files not found: {e}")
@@ -62,3 +64,4 @@ except FileNotFoundError as e:
     CAPTURE_SOUND = None
     CHECKMATE_SOUND = None
     CASTLE_SOUND = None
+    CHECK_SOUND = None

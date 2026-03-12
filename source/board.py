@@ -45,9 +45,20 @@ class Board:
                 rect = pygame.Rect(col * square_size, row * square_size, square_size, square_size)
                 pygame.draw.rect(window, color, rect)
 
+    def draw_check_warning(self, window: pygame.Surface):
+        """วาดกรอบแดงเมื่อ King โดนรุก"""
+        for color in [WHITE, BLACK]:
+            if self.is_in_check(color):
+                king_pos = self._find_king(color)
+                if king_pos:
+                    row, col = king_pos
+                    rect = pygame.Rect(col * square_size, row * square_size, square_size, square_size)
+                    pygame.draw.rect(window, (255, 0, 0), rect, 5)
+
     def draw(self, window: pygame.Surface):
         """วาดตารางแล้ววาดหมากทับ เรียก draw_squares ก่อน จากนั้นวนลูปวาด piece แต่ละตัว"""
         self.draw_squares(window)
+        self.draw_check_warning(window)
         for row in self.board:
             for piece in row:
                 if piece:
