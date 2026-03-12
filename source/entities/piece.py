@@ -22,6 +22,7 @@ class Piece(ABC):
         self.row = row
         self.col = col
         self.color = color  # "white" หรือ "black"
+        self.has_moved = False  # สำหรับกฎ Castling
 
     def calc_pos(self) -> tuple[int, int]:
         """คำนวณพิกัด x, y (topleft) จาก row, col สำหรับวาดรูป"""
@@ -161,7 +162,7 @@ class Queen(Piece):
 
 
 class King(Piece):
-    """ราชา - เดิน 1 ช่องทุกทิศ"""
+    """ราชา - เดิน 1 ช่องทุกทิศ + Castling"""
     piece_type = "king"
 
     def get_valid_moves(self, board: list) -> list[tuple[int, int]]:
@@ -173,4 +174,22 @@ class King(Piece):
                 r, c = self.row + dr, self.col + dc
                 if self._is_empty_or_enemy(r, c, board):
                     moves.append((r, c))
+
+        # Castling
+        if not self.has_moved:
+            # Kingside (ขวา): col+1, col+2 ว่าง, col+3 เป็น Rook same color, has_moved=False
+            if (self._is_valid_square(self.row, self.col + 1, board) and not board[self.row][self.col + 1]
+                and self._is_valid_square(self.row, self.col + 2, board) and not board[self.row][self.col + 2]):
+                rook = board[self.row][self.col + 3] if self.col + 3 < 8 else None
+                if rook and rook.piece_type == "rook" and rook.color == self.color and not rook.has_moved:
+                    moves.append((self.row, self.col + 2))
+
+            # Queenside (ซ้าย): col-1, col-2, col-3 ว่าง, col-4 เป็น Rook same color, has_moved=False
+            if (self._is_valid_square(self.row, self.col - 1, board) and not board[self.row][self.col - 1]
+                and self._is_valid_square(self.row, self.col - 2, board) and not board[self.row][self.col - 2]
+                and self._is_valid_square(self.row, self.col - 3, board) and not board[self.row][self.col - 3]):
+                rook = board[self.row][self.col - 4] if self.col - 4 >= 0 else None
+                if rook and rook.piece_type == "rook" and rook.color == self.color and not rook.has_moved:
+                    moves.append((self.row, self.col - 2))
+
         return moves

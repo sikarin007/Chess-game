@@ -2,7 +2,7 @@ import random
 import pygame
 from config import (
     WIDTH, HEIGHT, FPS, BG_COLOR, load_piece_images, row_count, column_count,
-    MOVE_SOUND, CAPTURE_SOUND, CHECKMATE_SOUND,
+    CHECKMATE_SOUND,
 )
 from source.board import Board
 from source.systems.control import get_row_col_from_mouse
@@ -49,7 +49,6 @@ class Game:
 
         if self.selected_piece:
             if (row, col) in self.valid_moves:
-                self._play_move_sound(row, col)
                 self.board.move(self.selected_piece, row, col)
                 self.turn = "black"
                 self.ai_timer_start = pygame.time.get_ticks()
@@ -68,15 +67,6 @@ class Game:
                 self.select_new_piece(row, col)
         else:
             self.select_new_piece(row, col)
-
-    def _play_move_sound(self, row, col):
-        """เล่นเสียงเดิน (ช่องว่าง) หรือกิน (มีหมาก)"""
-        if self.board.board[row][col]:
-            if CAPTURE_SOUND:
-                CAPTURE_SOUND.play()
-        else:
-            if MOVE_SOUND:
-                MOVE_SOUND.play()
 
     def select_new_piece(self, row, col):
         """ฟังก์ชันช่วยสำหรับเลือกหมากตัวใหม่"""
@@ -98,7 +88,6 @@ class Game:
         best_move = self.ai.get_best_move()
         if best_move:
             piece, row, col = best_move
-            self._play_move_sound(row, col)
             self.board.move(piece, row, col)
             self.turn = "white"
             if self.board.is_checkmate(self.turn):

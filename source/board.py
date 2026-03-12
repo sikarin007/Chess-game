@@ -4,6 +4,7 @@
 
 import pygame
 from config import square_size, row_count, column_count, BOARD_LIGHT, BOARD_DARK
+from config import MOVE_SOUND, CAPTURE_SOUND, CASTLE_SOUND
 from source.entities.piece import (
     WHITE, BLACK,
     Rook, Knight, Bishop, Queen, King, Pawn,
@@ -65,9 +66,35 @@ class Board:
     def move(self, piece, row: int, col: int):
         """ย้ายตำแหน่งหมากใน Array 2 มิติเมื่อมีการเดินเกิดขึ้น"""
         old_row, old_col = piece.row, piece.col
+        is_capture = bool(self.board[row][col])
+        is_castle = False
+
+        if piece.piece_type == "king" and abs(col - piece.col) == 2:
+            is_castle = True
+            if col > piece.col:  # Kingside (ขวา)
+                rook = self.board[row][7]
+                self.board[row][7] = 0
+                self.board[row][col - 1] = rook
+                rook.row, rook.col = row, col - 1
+                rook.has_moved = True
+            else:  # Queenside (ซ้าย)
+                rook = self.board[row][0]
+                self.board[row][0] = 0
+                self.board[row][col + 1] = rook
+                rook.row, rook.col = row, col + 1
+                rook.has_moved = True
+
         self.board[old_row][old_col] = 0
         self.board[row][col] = piece
         piece.row, piece.col = row, col
+        piece.has_moved = True
+
+        if is_castle and CASTLE_SOUND:
+            CASTLE_SOUND.play()
+        elif is_capture and CAPTURE_SOUND:
+            CAPTURE_SOUND.play()
+        elif MOVE_SOUND:
+            MOVE_SOUND.play()
 
     def get_piece_at(self, row: int, col: int):
         """คืนค่าหมากที่ช่อง (row, col) หรือ 0 ถ้าช่องว่าง"""
@@ -118,6 +145,23 @@ class Board:
 
         for row, col in valid_moves:
             captured = self.board[row][col]
+            rook_saved = None
+            rook_old_col = None
+            if piece.piece_type == "king" and abs(col - old_col) == 2:
+                if col > old_col:  # Kingside
+                    rook_saved = self.board[row][7]
+                    rook_old_col = 7
+                    self.board[row][7] = 0
+                    self.board[row][5] = rook_saved
+                    if rook_saved:
+                        rook_saved.col = 5
+                else:  # Queenside
+                    rook_saved = self.board[row][0]
+                    rook_old_col = 0
+                    self.board[row][0] = 0
+                    self.board[row][3] = rook_saved
+                    if rook_saved:
+                        rook_saved.col = 3
             self.board[old_row][old_col] = 0
             self.board[row][col] = piece
             piece.row, piece.col = row, col
@@ -128,6 +172,10 @@ class Board:
             self.board[old_row][old_col] = piece
             self.board[row][col] = captured
             piece.row, piece.col = old_row, old_col
+            if rook_saved is not None:
+                self.board[row][rook_old_col] = rook_saved
+                self.board[row][5 if rook_old_col == 7 else 3] = 0
+                rook_saved.row, rook_saved.col = row, rook_old_col
 
         return legal_moves
 
