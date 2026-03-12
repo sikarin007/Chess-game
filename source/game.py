@@ -113,10 +113,32 @@ class Game:
         self.board.draw(self.screen)
         self.board.draw_valid_moves(self.screen, self.valid_moves)
         if self.game_over and self.game_over_message:
-            font = pygame.font.Font(None, 72)
-            text = font.render(self.game_over_message, True, (255, 255, 255))
-            rect = text.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2))
-            self.screen.blit(text, rect)
+            font = pygame.font.SysFont("Arial", 72)
+            text1 = font.render(self.game_over_message, True, (255, 255, 255))
+            r1 = text1.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 - 30))
+
+            texts = [text1]
+            rects = [r1]
+            if self.game_over_message == "Checkmate!":
+                if self.turn == "white":
+                    text2 = font.render("You Lose!", True, (255, 0, 0))
+                else:
+                    text2 = font.render("You Win!", True, (0, 255, 0))
+                r2 = text2.get_rect(center=(self.screen.get_width() // 2, self.screen.get_height() // 2 + 30))
+                texts.append(text2)
+                rects.append(r2)
+
+            min_x = min(r.left for r in rects)
+            max_x = max(r.right for r in rects)
+            min_y = min(r.top for r in rects)
+            max_y = max(r.bottom for r in rects)
+            padding = 20
+            box_rect = pygame.Rect(min_x - padding, min_y - padding, max_x - min_x + padding * 2, max_y - min_y + padding * 2)
+            surf = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)
+            surf.fill((0, 0, 0, 180))
+            self.screen.blit(surf, box_rect.topleft)
+            for text, rect in zip(texts, rects):
+                self.screen.blit(text, rect)
         pygame.display.flip()
 
     def run(self):
